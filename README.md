@@ -1,2 +1,2 @@
-# googleAutoFillDocToEmail
-Google Form to a Spreadsheet to Google Doc to email to who filled the Google Doc
+# Google Form to Google Spreadsheet to Google Doc
+I work at my college on various tech projects. I was tasked with creating a New Software Request Form. 
