@@ -1,1 +1,112 @@
+function autoFillGoogleDocFromForm(e){
+
+//e.values is an array of form values
+var itcChairs=['']; //Insert the ITC Chair(s) email(s) in single quotes with a comma in between
+
+//Requestor Information
+var timestamp=e.values[0];
+var lastName=e.values[2];
+var firstName=e.values[3];
+var department=e.values[6];
+var emailAddress=e.values[4];
+var phone=e.values[5];
+
+//Software Needs & Demo Info
+var softwareNeed=e.values[8];
+var solutions=e.values[9];
+var dataCollection=e.values[10];
+var slt=e.values[11];
+var budget=e.values[12];
+var itMember=e.values[13];
+var integrationDiscussion=e.values[14];
+var implementationDiscussion=e.values[15];
+
+//Used for checkboxquestion
+//var checkboxQuestion=e.values[5];
+
+//file is the template file, and you get it by ID
+var file = DriveApp.getFileById('1s0uMe4b85rxj7VmTslZTGHJ0c8SidxVoFwbCOPlKpGc');
+
+//We can make a copy of the template, name it, and optionally tell it what folder to live in
+//file.makeCopy will return a Google Drive file object
+var folder = DriveApp.getFolderById('1j1A9MjIZOF51nHOucP1cRh6oIfoK8I6U');
+var copy = file.makeCopy(lastName + ', ' + firstName, folder);
+
+//Once we've got the new file created, we need to open it as a document by using its ID
+var doc = DocumentApp.openById(copy.getId());
+
+//Since everything we need to change is in the body, we need to get that
+var body = doc.getBody();
+
+//Then we call all of our replaceText methods
+//Requestor Information
+body.replaceText('{{Timestamp}}',timestamp)
+body.replaceText('{{First Name}}', firstName); 
+body.replaceText('{{Last Name}}', lastName);  
+body.replaceText('{{Department}}', department);
+body.replaceText('{{Email}}', emailAddress);
+body.replaceText('{{Phone}}', phone);
+
+//Software Needs & Demo Info
+body.replaceText('{{Software Need}}',softwareNeed);
+body.replaceText('{{Solutions}}',solutions);
+body.replaceText('{{Data Collection}}',dataCollection);
+body.replaceText('{{SLT}}',slt);
+body.replaceText('{{Budget}}',budget);
+body.replaceText('{{IT Member}}',itMember);
+body.replaceText('{{Integration Discussion}}',integrationDiscussion);
+body.replaceText('{{Implementation Discussion}}',implementationDiscussion);
+
+//Checkbox Question using unicode characters
+/*
+if(checkboxQuestion == "Yes"){
+  body.replaceText('{{Checkbox Question}}',"\u2611" + " " + checkboxQuestion)
+} else if(checkboxQuestion !== "Yes") {
+  body.replaceText('{{Checkbox Question}}',"\u25FB" + " "+ "Yes")
+};
+body.replaceText('{{Checkbox Question}}', checkboxQuestion);
+*/
+
+//Sharing the new doc with the submitter and the co-chair(s) of ITC
+doc.addEditor(emailAddress);
+doc.addEditors(itcChairs);
+
+//Lastly we save and close the document to persist our changes
+doc.saveAndClose(); 
+
+//getting the document url to attach to email
+var docUrl = doc.getUrl();
+
+//Email after filled out
+var doc = DocumentApp.getActiveDocument();
+//var subject = "New Software Request Submitted";
+
+//Message in the email along with the docUrl being changed to "Click Here"
+//<br> = line break
+//<a> = anchor tag
+//href = hypertag reference
+var message = "Dear " + firstName + ",<br><br>Thank you for submitting the request for new software. You can <a href='" + docUrl + "'>click here</a> to view the document.";
+
+//Subject of email
+var subject = "New Software Request Submitted";
+
+// Signature 
+//var signature = "<br><br>Best, <br>The Information Technology Committee<br><br>Hartwick College<br>000-000-0000<br>itc@hartwick.edu<br><a href='https://giphy.com/gifs/southparkgifs-l0HlxOoGxgfrq7F2o'><img src='https://media.giphy.com/media/l0HlxOoGxgfrq7F2o/giphy.gif' alt='Giphy'></a>";
+
+var signature = "<br><br>Best, <br>The Information Technology Committee<br><br><img src='https://media.giphy.com/media/l0HlxOoGxgfrq7F2o/giphy.gif' alt='Giphy' style='float:left; margin-right:10px;'> Hartwick College<br>000-000-0000<br>itc@hartwick.edu";
+
+
+// Concatenate Signature to the message
+message += signature;
+
+//Sending email
+MailApp.sendEmail({
+  to: emailAddress,
+  subject: subject,
+  htmlBody: message,
+  name: "Information Technology Committee"
+});
+}
+
+
 
